@@ -36,6 +36,8 @@
 #   GET Do you want to calculate again?
 #
 
+require 'byebug'
+
 def prompt(message)
   puts ">> #{message}"
 end
@@ -77,10 +79,10 @@ def get_loan_amount
   loan_amount = ''
   loop do
     prompt('Enter the loan amount in dollars: ')
-    answer = gets.chomp.delete('$').to_f
+    answer = gets.chomp.delete('$')
 
     if valid_float? answer
-      loan_amount = answer.round(2)
+      loan_amount = answer.to_f.round(2)
       break
     else
       prompt('Please enter a loan amount in dollars with or without the dollar sign ($).')
@@ -95,10 +97,10 @@ def apr
   apr = ''
   loop do
     prompt('Enter the APR in percent (%3.5, 3.5%, 3.5)')
-    answer = gets.chomp.delete('%').to_f
+    answer = gets.chomp.delete('%')
 
     if valid_percent? answer
-      apr = answer.round(2)
+      apr = answer.to_f.round(2)
       break
     else
       prompt('Please enter a valid APR with or without the percent sign (%).')
@@ -115,11 +117,11 @@ def loan_length
     prompt('Enter the loan length in months (60m) or years (5y)')
     loan_length = gets.chomp
     if valid_month? loan_length
-      if loan_length[-1, 1] = 'y'
-        loan_length = loan_length.delete('y').to_i / 12
-      else
-        loan_length = loan_length.delete('n').to_i
-      end
+      loan_length = if loan_length[-1, 1] = 'y'
+                      loan_length.delete('y').to_i / 12
+                    else
+                      loan_length.delete('n').to_i
+                    end
       break
     else
       prompt('Please enter a valid loan length in months (36).')
@@ -129,7 +131,7 @@ def loan_length
   loan_length
 end
 
-def print_calculation(monthly_payment, monthly_interest, loan_type)
+def print_calculation(monthly_payment, _monthly_interest, loan_type)
   if loan_type == 'car loan'
     loan_item = 'car'
   else
@@ -155,13 +157,15 @@ loop do
 
   prompt("Ok, #{name}! Let's run a #{loan_type} calculation.")
 
+  byebug
+
   loan_amount = get_loan_amount
   apr = get_apr
-  loan_length_months  = get_loan_length_months
+  loan_length_months = get_loan_length_months
 
   monthly_interest_rate = apr / 12.0
 
-  monthly_payment = loan_amount * (monthly_interest_rate / (1 - (1 + monthly_interest_rate) ** (-loan_length_months)))
+  monthly_payment = loan_amount * (monthly_interest_rate / (1 - (1 + monthly_interest_rate)**(-loan_length_months)))
 
   print_calculation(monthly_payment, monthly_interest, loan_type)
 
