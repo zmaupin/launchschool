@@ -36,8 +36,6 @@
 #   GET Do you want to calculate again?
 #
 
-require 'byebug'
-
 def prompt(message)
   puts ">> #{message}"
 end
@@ -100,7 +98,7 @@ def get_apr
     answer = gets.chomp.delete('%')
 
     if valid_percent? answer
-      apr = answer.to_f.round(2)
+      apr = answer.to_f.round(2) / 100
       break
     else
       prompt('Please enter a valid APR with or without the percent sign (%).')
@@ -112,13 +110,12 @@ def get_apr
 end
 
 def get_loan_length_months
-  byebug
   loan_length = ''
   loop do
     prompt('Enter the loan length in months (60m) or years (5y)')
     loan_length = gets.chomp.downcase
     if valid_number? loan_length.delete('y').delete('m')
-      loan_length = if loan_length[-1, 1] = 'y'
+      loan_length = if loan_length[-1, 1] == 'y'
                       loan_length.delete('y').to_i * 12
                     else
                       loan_length.delete('n').to_i
@@ -133,11 +130,11 @@ def get_loan_length_months
 end
 
 def print_calculation(monthly_payment, _monthly_interest_rate, loan_type)
-  if loan_type == 'car loan'
-    loan_item = 'car'
-  else
-    loan_item == 'home'
-  end
+  loan_item = if loan_type == 'car loan'
+                'car'
+              else
+                'home'
+              end
 
   prompt("You new #{loan_item} will cost #{monthly_payment} per month!")
 end
@@ -162,9 +159,9 @@ loop do
   apr = get_apr
   loan_length_months = get_loan_length_months
 
-  monthly_interest_rate = apr / 12.0
+  monthly_interest_rate = apr / 12
 
-  monthly_payment = loan_amount * (monthly_interest_rate / (1 - (1 + monthly_interest_rate)**(-loan_length_months)))
+  monthly_payment = (loan_amount.to_f * (monthly_interest_rate / (1 - (1 + monthly_interest_rate)**(-loan_length_months)))).round(2)
 
   print_calculation(monthly_payment, monthly_interest_rate, loan_type)
 
