@@ -42,8 +42,8 @@ def prompt(message)
   puts ">> #{message}"
 end
 
-def valid_float?(number)
-  number.to_f.to_s == number && !number.negative?
+def valid_number?(number)
+  number.to_i.to_s == number || number.to_f.to_s == number && !number.negative?
 end
 
 def valid_percent?(percent)
@@ -81,7 +81,7 @@ def get_loan_amount
     prompt('Enter the loan amount in dollars: ')
     answer = gets.chomp.delete('$')
 
-    if valid_float? answer
+    if valid_number? answer
       loan_amount = answer.to_f.round(2)
       break
     else
@@ -93,7 +93,7 @@ def get_loan_amount
   loan_amount
 end
 
-def apr
+def get_apr
   apr = ''
   loop do
     prompt('Enter the APR in percent (%3.5, 3.5%, 3.5)')
@@ -111,14 +111,15 @@ def apr
   apr
 end
 
-def loan_length
+def get_loan_length_months
+  byebug
   loan_length = ''
   loop do
     prompt('Enter the loan length in months (60m) or years (5y)')
-    loan_length = gets.chomp
-    if valid_month? loan_length
+    loan_length = gets.chomp.downcase
+    if valid_number? loan_length.delete('y').delete('m')
       loan_length = if loan_length[-1, 1] = 'y'
-                      loan_length.delete('y').to_i / 12
+                      loan_length.delete('y').to_i * 12
                     else
                       loan_length.delete('n').to_i
                     end
@@ -131,7 +132,7 @@ def loan_length
   loan_length
 end
 
-def print_calculation(monthly_payment, _monthly_interest, loan_type)
+def print_calculation(monthly_payment, _monthly_interest_rate, loan_type)
   if loan_type == 'car loan'
     loan_item = 'car'
   else
@@ -157,8 +158,6 @@ loop do
 
   prompt("Ok, #{name}! Let's run a #{loan_type} calculation.")
 
-  byebug
-
   loan_amount = get_loan_amount
   apr = get_apr
   loan_length_months = get_loan_length_months
@@ -167,7 +166,7 @@ loop do
 
   monthly_payment = loan_amount * (monthly_interest_rate / (1 - (1 + monthly_interest_rate)**(-loan_length_months)))
 
-  print_calculation(monthly_payment, monthly_interest, loan_type)
+  print_calculation(monthly_payment, monthly_interest_rate, loan_type)
 
   unless rerun?
     puts "Goodbye, #{name}!"
