@@ -77,7 +77,7 @@ def get_loan_amount
   loan_amount = ''
   loop do
     prompt('Enter the loan amount in dollars: ')
-    answer = gets.chomp.delete('$')
+    answer = gets.chomp.delete('$').delete(',')
 
     if valid_number? answer
       loan_amount = answer.to_f.round(2)
