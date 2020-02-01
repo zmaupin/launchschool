@@ -1,0 +1,1 @@
+variables as pointers
